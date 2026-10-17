@@ -1,12 +1,6 @@
 {
-  "total": 10,
+  "total": 9,
   "eventos": [
-    {
-      "fecha": "2026-10-17",
-      "nombre": "Crazy Girls",
-      "imagen": "eventos/2026-10-17_Crazy Girls.jpg",
-      "participacion_rebel": false
-    },
     {
       "fecha": "2026-10-25",
       "nombre": "Doo Wop Fever 8",
