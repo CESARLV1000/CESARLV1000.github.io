@@ -274,3 +274,74 @@ body.rr-legal-page .rr-404-actions a:visited{
     border-color:#555 !important;
 }
 /* REBEL-LEGAL-FINAL-FIN */
+
+/* REBEL-MENU-FIJO-BOTON-INICIO-20261019 */
+
+/* La cabecera permanece visible durante todo el desplazamiento sin sacar
+   el contenido del flujo normal de la página. */
+header.rr-header{
+  position:sticky!important;
+  top:0!important;
+  z-index:2500!important;
+}
+
+/* Botón de retorno: solo lo crea rebel-menu.js fuera de la portada. */
+header.rr-header .rr-home-return,
+header.rr-header .rr-home-return:visited{
+  height:36px!important;
+  min-height:36px!important;
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  padding:0 11px!important;
+  border:1px solid #444!important;
+  border-radius:8px!important;
+  background:#181818!important;
+  color:#fff!important;
+  text-decoration:none!important;
+  font-size:13px!important;
+  font-weight:800!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  z-index:2600!important;
+}
+header.rr-header .rr-home-return:hover,
+header.rr-header .rr-home-return:focus-visible{
+  background:#242424!important;
+  border-color:#777!important;
+}
+header.rr-header .rr-home-return-icon{
+  font-size:20px!important;
+  line-height:1!important;
+  transform:translateY(-1px);
+}
+
+@media(min-width:701px){
+  /* El menú principal conserva su centrado; INICIO queda anclado a la derecha. */
+  header.rr-header .rr-home-return{
+    position:absolute!important;
+    right:12px!important;
+    top:50%!important;
+    transform:translateY(-50%)!important;
+    margin:0!important;
+  }
+}
+
+@media(max-width:700px){
+  /* En móvil mantiene MENÚ a la izquierda e INICIO en el lado derecho.
+     Si existe selector de idioma, queda a continuación del botón Inicio. */
+  header.rr-header .rr-home-return{
+    position:static!important;
+    order:2!important;
+    margin-left:auto!important;
+    transform:none!important;
+    padding:0 9px!important;
+    font-size:12px!important;
+  }
+  header.rr-header.rr-has-home-return .rr-lang-box{
+    margin-left:7px!important;
+  }
+}
+
