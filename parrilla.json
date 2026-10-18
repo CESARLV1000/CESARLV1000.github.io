@@ -1,7 +1,7 @@
 {
   "version": 3,
   "zona_horaria": "Europe/Madrid",
-  "generado_en": "2026-10-18T21:34:31+02:00",
+  "generado_en": "2026-10-18T22:04:10+02:00",
   "continuidad": {
     "tipo": "musica",
     "nombre": "Música",
@@ -107,15 +107,6 @@
     },
     {
       "dia": "martes",
-      "hora": "22:00",
-      "duracion_minutos": 60,
-      "nombre": "Frecuencia Rebelde",
-      "tipo": "repeticion",
-      "regla": "weekly",
-      "programa_id": "frecuencia-rebelde"
-    },
-    {
-      "dia": "martes",
       "hora": "23:00",
       "duracion_minutos": 60,
       "nombre": "Mr Twister Radio Chou",
@@ -152,30 +143,12 @@
     },
     {
       "dia": "miercoles",
-      "hora": "20:00",
-      "duracion_minutos": 60,
-      "nombre": "Frecuencia Rebelde",
-      "tipo": "repeticion",
-      "regla": "weekly",
-      "programa_id": "frecuencia-rebelde"
-    },
-    {
-      "dia": "miercoles",
       "hora": "23:00",
       "duracion_minutos": 60,
       "nombre": "El Andén",
       "tipo": "repeticion",
       "regla": "weekly",
       "programa_id": "el-anden"
-    },
-    {
-      "dia": "jueves",
-      "hora": "11:00",
-      "duracion_minutos": 60,
-      "nombre": "Frecuencia Rebelde",
-      "tipo": "repeticion",
-      "regla": "weekly",
-      "programa_id": "frecuencia-rebelde"
     },
     {
       "dia": "jueves",
@@ -303,15 +276,6 @@
       "tipo": "repeticion",
       "regla": "weekly",
       "programa_id": "mr-twister"
-    },
-    {
-      "dia": "domingo",
-      "hora": "20:00",
-      "duracion_minutos": 60,
-      "nombre": "Frecuencia Rebelde",
-      "tipo": "estreno",
-      "regla": "weekly",
-      "programa_id": "frecuencia-rebelde"
     }
   ]
 }
