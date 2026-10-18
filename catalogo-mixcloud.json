@@ -1,5 +1,5 @@
 {
-  "generado": "2026-10-17T15:49:05",
+  "generado": "2026-10-18T03:05:37",
   "programas": [
     {
       "id": "fifi-express",
@@ -15,7 +15,7 @@
           "key": "/Rock_and_Roll_Rebel_Radio/fifi-express-161026/",
           "imagen": "/portadas-programas/571508d4d877f6d353f7eec7d06a26cd.webp",
           "duracion": 903,
-          "reproducciones": 6,
+          "reproducciones": 8,
           "proveedor": "mixcloud"
         }
       ]
@@ -34,7 +34,7 @@
           "key": "/Rock_and_Roll_Rebel_Radio/mr-twister-radio-chou-151026/",
           "imagen": "/portadas-programas/06bafd66e86e0587ad2ea18d572cce1d.webp",
           "duracion": 3253,
-          "reproducciones": 14,
+          "reproducciones": 16,
           "proveedor": "mixcloud"
         },
         {
@@ -163,7 +163,7 @@
           "key": "/Rock_and_Roll_Rebel_Radio/esto-s%C3%AD-que-es-rocanrol-151026/",
           "imagen": "/portadas-programas/75132c47b583736b904169cc8b871ff9.webp",
           "duracion": 3034,
-          "reproducciones": 8,
+          "reproducciones": 10,
           "proveedor": "mixcloud"
         },
         {
@@ -212,7 +212,7 @@
           "key": "/Rock_and_Roll_Rebel_Radio/dr-mambusenn-141026/",
           "imagen": "/portadas-programas/7bac7cbbd0263d9495c8f4c71bf7e803.webp",
           "duracion": 2815,
-          "reproducciones": 9,
+          "reproducciones": 10,
           "proveedor": "mixcloud"
         },
         {
@@ -984,6 +984,22 @@
       "proveedor": "mixcloud",
       "ultima_emision": null,
       "estado": "proximamente",
+      "episodios": []
+    },
+    {
+      "id": "instrumental",
+      "nombre": "Instrumental",
+      "proveedor": "directo",
+      "ultima_emision": null,
+      "estado": "solo_directo",
+      "episodios": []
+    },
+    {
+      "id": "en-castellano",
+      "nombre": "En Castellano",
+      "proveedor": "directo",
+      "ultima_emision": null,
+      "estado": "solo_directo",
       "episodios": []
     }
   ]

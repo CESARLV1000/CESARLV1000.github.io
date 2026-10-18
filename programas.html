@@ -503,39 +503,64 @@ fetch('catalogo-mixcloud.json')
 
             if(!programa.episodios.length){
 
-                if(programa.estado === 'proximamente'){
+                const soloDirecto =
+                    programa.proveedor === 'directo' ||
+                    programa.estado === 'solo_directo';
 
-                    const seccion = document.createElement('section');
-                    seccion.className = 'programa';
+                const destino =
+                    programa.proveedor === 'ivoox'
+                        ? 'iVoox'
+                        : 'Mixcloud';
 
-                    seccion.innerHTML = `
-                        <div class="tarjeta tarjeta-sin-portada">
+                const mensajePrincipal =
+                    soloDirecto
+                        ? 'Solo en directo'
+                        : 'Podcast pendiente';
 
-                            <h2 class="nombre-programa nombre-programa-movil">
+                const mensajeDetalle =
+                    soloDirecto
+                        ? 'No disponible como podcast'
+                        : `Próximamente en ${destino}`;
+
+                const seccion =
+                    document.createElement('section');
+
+                seccion.className =
+                    'programa';
+
+                seccion.innerHTML = `
+                    <div class="tarjeta tarjeta-sin-portada">
+
+                        <h2 class="nombre-programa nombre-programa-movil">
+                            ${programa.nombre}
+                        </h2>
+
+                        <div class="contenido">
+
+                            <h2 class="nombre-programa nombre-programa-escritorio">
                                 ${programa.nombre}
                             </h2>
 
-                            <div class="contenido">
+                            <p class="ultimo">
+                                ${mensajePrincipal}
+                            </p>
 
-                                <h2 class="nombre-programa nombre-programa-escritorio">
-                                    ${programa.nombre}
-                                </h2>
+                            <p class="detalle">
+                                ${mensajeDetalle}
+                            </p>
 
-                                <p class="ultimo">
-                                    Próximamente en Rebel Radio
-                                </p>
-
-                                <p class="detalle">
-                                    Nuevo programa
-                                </p>
-
-                            </div>
+                            <a
+                                class="ver-programa"
+                                href="programa.html?id=${programa.id}">
+                                Ver ficha →
+                            </a>
 
                         </div>
-                    `;
 
-                    lista.appendChild(seccion);
-                }
+                    </div>
+                `;
+
+                lista.appendChild(seccion);
 
                 continue;
             }

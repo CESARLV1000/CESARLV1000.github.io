@@ -816,71 +816,460 @@ const estadoProgramas =
     document.getElementById('estado-programas');
 
 
-fetch('/catalogo-mixcloud.json')
+/* PROGRAMAS RECIENTES POR PARRILLA — 18-10-2026 */
 
-    .then(respuesta => {
+const MS_DIA_RECIENTES = 24 * 60 * 60 * 1000;
+const DIAS_RECIENTES = [
+    'domingo',
+    'lunes',
+    'martes',
+    'miercoles',
+    'jueves',
+    'viernes',
+    'sabado'
+];
 
-        if(!respuesta.ok){
+function ahoraMadridRecientes(){
+
+    const partes = new Intl.DateTimeFormat(
+        'en-CA',
+        {
+            timeZone: 'Europe/Madrid',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hourCycle: 'h23'
+        }
+    ).formatToParts(new Date());
+
+    const valor = tipo =>
+        Number(partes.find(p => p.type === tipo)?.value);
+
+    /*
+     * Date UTC usado aquí como contenedor de la hora civil de Madrid.
+     * Así los cálculos de parrilla no dependen de la zona del dispositivo.
+     */
+    return new Date(Date.UTC(
+        valor('year'),
+        valor('month') - 1,
+        valor('day'),
+        valor('hour'),
+        valor('minute'),
+        valor('second')
+    ));
+}
+
+function fechaISORecientes(fecha){
+
+    return [
+        fecha.getUTCFullYear(),
+        String(fecha.getUTCMonth() + 1).padStart(2, '0'),
+        String(fecha.getUTCDate()).padStart(2, '0')
+    ].join('-');
+}
+
+function fechaDesdeISORecientes(iso){
+
+    const [anio, mes, dia] =
+        String(iso).split('-').map(Number);
+
+    return new Date(Date.UTC(anio, mes - 1, dia));
+}
+
+function inicioRecientes(fechaDia, hora){
+
+    const [h, m] =
+        String(hora).split(':').map(Number);
+
+    return new Date(Date.UTC(
+        fechaDia.getUTCFullYear(),
+        fechaDia.getUTCMonth(),
+        fechaDia.getUTCDate(),
+        h,
+        m
+    ));
+}
+
+function reglaActivaRecientes(emision, fechaDia){
+
+    if(
+        emision.regla === 'biweekly' &&
+        emision.anchor_date
+    ){
+        const ancla =
+            fechaDesdeISORecientes(emision.anchor_date);
+
+        const dia =
+            new Date(Date.UTC(
+                fechaDia.getUTCFullYear(),
+                fechaDia.getUTCMonth(),
+                fechaDia.getUTCDate()
+            ));
+
+        const diferencia =
+            Math.round(
+                (dia.getTime() - ancla.getTime()) /
+                MS_DIA_RECIENTES
+            );
+
+        return (
+            diferencia >= 0 &&
+            diferencia % 14 === 0
+        );
+    }
+
+    return true;
+}
+
+function emisionesRecientesPrevistas(parrilla){
+
+    const ahora =
+        ahoraMadridRecientes();
+
+    const candidatas = [];
+
+    /*
+     * Miramos 45 días hacia atrás: sobra para obtener cuatro
+     * programas distintos incluso con espacios quincenales.
+     */
+    for(let retroceso = 0; retroceso <= 45; retroceso++){
+
+        const fechaDia =
+            new Date(Date.UTC(
+                ahora.getUTCFullYear(),
+                ahora.getUTCMonth(),
+                ahora.getUTCDate() - retroceso
+            ));
+
+        const fechaISO =
+            fechaISORecientes(fechaDia);
+
+        const dia =
+            DIAS_RECIENTES[fechaDia.getUTCDay()];
+
+        const excepciones =
+            (parrilla.excepciones || [])
+                .filter(e => e.fecha === fechaISO);
+
+        const cancelados = new Set(
+            excepciones
+                .filter(e => e.accion === 'cancel')
+                .map(e => e.programa_id)
+        );
+
+        const horasSustituidas = new Set(
+            excepciones
+                .filter(e =>
+                    ['replace', 'special'].includes(e.accion) &&
+                    e.hora
+                )
+                .map(e => e.hora)
+        );
+
+        for(const emision of (parrilla.emisiones || [])){
+
+            if(
+                emision.dia !== dia ||
+                !['estreno', 'musical'].includes(emision.tipo)
+            ){
+                continue;
+            }
+
+            if(cancelados.has(emision.programa_id)){
+                continue;
+            }
+
+            if(horasSustituidas.has(emision.hora)){
+                continue;
+            }
+
+            if(!reglaActivaRecientes(emision, fechaDia)){
+                continue;
+            }
+
+            const inicio =
+                inicioRecientes(fechaDia, emision.hora);
+
+            const fin =
+                new Date(
+                    inicio.getTime() +
+                    Number(emision.duracion_minutos || 0) *
+                    60 * 1000
+                );
+
+            /*
+             * Por decisión actual de Rebel Radio, cuando la franja termina
+             * confiamos en que el sistema ha emitido lo programado.
+             */
+            if(fin.getTime() > ahora.getTime()){
+                continue;
+            }
+
+            candidatas.push({
+                programa_id: emision.programa_id,
+                nombre: emision.nombre,
+                fecha: fechaISO,
+                inicio: inicio.getTime(),
+                tipo: emision.tipo
+            });
+        }
+
+        for(const especial of (parrilla.reglas_especiales || [])){
+
+            if(
+                Number(especial.dia_del_mes) !==
+                fechaDia.getUTCDate()
+            ){
+                continue;
+            }
+
+            if(cancelados.has(especial.programa_id || especial.id)){
+                continue;
+            }
+
+            if(horasSustituidas.has(especial.hora)){
+                continue;
+            }
+
+            const inicio =
+                inicioRecientes(fechaDia, especial.hora);
+
+            const fin =
+                new Date(
+                    inicio.getTime() +
+                    Number(especial.duracion_minutos || 0) *
+                    60 * 1000
+                );
+
+            if(fin.getTime() > ahora.getTime()){
+                continue;
+            }
+
+            candidatas.push({
+                programa_id:
+                    especial.programa_id || especial.id,
+                nombre: especial.nombre,
+                fecha: fechaISO,
+                inicio: inicio.getTime(),
+                tipo: 'especial'
+            });
+        }
+
+        /* Excepciones concretas que introducen o sustituyen una emisión. */
+        for(const exc of excepciones){
+
+            if(
+                !['replace', 'special'].includes(exc.accion) ||
+                !exc.hora
+            ){
+                continue;
+            }
+
+            const inicio =
+                inicioRecientes(fechaDia, exc.hora);
+
+            const fin =
+                new Date(
+                    inicio.getTime() +
+                    Number(exc.duracion_minutos || 0) *
+                    60 * 1000
+                );
+
+            if(fin.getTime() > ahora.getTime()){
+                continue;
+            }
+
+            candidatas.push({
+                programa_id: exc.programa_id,
+                nombre: exc.nombre,
+                fecha: fechaISO,
+                inicio: inicio.getTime(),
+                tipo: 'especial'
+            });
+        }
+    }
+
+    candidatas.sort(
+        (a, b) => b.inicio - a.inicio
+    );
+
+    const vistos = new Set();
+    const resultado = [];
+
+    for(const item of candidatas){
+
+        if(
+            !item.programa_id ||
+            vistos.has(item.programa_id)
+        ){
+            continue;
+        }
+
+        vistos.add(item.programa_id);
+        resultado.push(item);
+
+        if(resultado.length === 4){
+            break;
+        }
+    }
+
+    return resultado;
+}
+
+function sumarDiasRecientes(iso, dias){
+
+    const fecha =
+        fechaDesdeISORecientes(iso);
+
+    fecha.setUTCDate(
+        fecha.getUTCDate() + dias
+    );
+
+    return fechaISORecientes(fecha);
+}
+
+function episodioDeEmisionReciente(programa, emision){
+
+    if(
+        !programa ||
+        !Array.isArray(programa.episodios)
+    ){
+        return null;
+    }
+
+    const proveedor =
+        programa.proveedor || 'mixcloud';
+
+    if(proveedor === 'ivoox'){
+
+        /*
+         * iVoox fecha por publicación RSS. Elvis puede aparecer
+         * después de emitirse, por lo que admitimos hasta +3 días.
+         */
+        const limite =
+            sumarDiasRecientes(emision.fecha, 3);
+
+        return programa.episodios.find(
+            episodio =>
+                episodio &&
+                episodio.fecha >= emision.fecha &&
+                episodio.fecha <= limite
+        ) || null;
+    }
+
+    /*
+     * En Mixcloud la fecha normalizada procede del nombre del episodio
+     * y corresponde a la fecha de emisión.
+     */
+    return programa.episodios.find(
+        episodio =>
+            episodio &&
+            episodio.fecha === emision.fecha
+    ) || null;
+}
+
+function estadoPodcastReciente(programa, emision){
+
+    const proveedor =
+        programa?.proveedor ||
+        (emision.tipo === 'musical'
+            ? 'directo'
+            : 'mixcloud');
+
+    const episodio =
+        episodioDeEmisionReciente(programa, emision);
+
+    const ultimaPortada =
+        programa?.episodios?.[0]?.imagen || '';
+
+    if(proveedor === 'directo'){
+        return {
+            texto:
+                'Solo en directo · No disponible como podcast',
+            episodio: null,
+            imagen:
+                ultimaPortada || '/icons/icon-512.png'
+        };
+    }
+
+    if(episodio){
+        return {
+            texto:
+                proveedor === 'ivoox'
+                    ? 'Podcast disponible · iVoox'
+                    : 'Podcast disponible · Mixcloud',
+            episodio,
+            imagen:
+                episodio.imagen ||
+                ultimaPortada ||
+                '/icons/icon-512.png'
+        };
+    }
+
+    return {
+        texto:
+            proveedor === 'ivoox'
+                ? 'Podcast pendiente · Próximamente en iVoox'
+                : 'Podcast pendiente · Próximamente en Mixcloud',
+        episodio: null,
+        imagen:
+            ultimaPortada || '/icons/icon-512.png'
+    };
+}
+
+Promise.all([
+    fetch('/catalogo-mixcloud.json'),
+    fetch('/parrilla.json')
+])
+
+    .then(async ([respuestaCatalogo, respuestaParrilla]) => {
+
+        if(!respuestaCatalogo.ok){
             throw new Error(
                 'No se puede cargar el catálogo'
             );
         }
 
-        return respuesta.json();
+        if(!respuestaParrilla.ok){
+            throw new Error(
+                'No se puede cargar la parrilla'
+            );
+        }
+
+        return [
+            await respuestaCatalogo.json(),
+            await respuestaParrilla.json()
+        ];
     })
 
-    .then(catalogo => {
+    .then(([catalogo, parrilla]) => {
 
         estadoProgramas.style.display =
             'none';
 
-        const programas =
-            catalogo.programas
-                .filter(programa =>
-                    Array.isArray(programa.episodios) &&
-                    programa.episodios.length
-                )
-                .map(programa => {
+        const recientes =
+            emisionesRecientesPrevistas(parrilla);
 
-                    const episodios =
-                        programa.episodios
-                            .filter(episodio =>
-                                episodio &&
-                                episodio.fecha
-                            )
-                            .slice()
-                            .sort((a, b) =>
-                                String(b.fecha)
-                                    .localeCompare(
-                                        String(a.fecha)
-                                    )
-                            );
-
-                    if(!episodios.length){
-                        return null;
-                    }
-
-                    return {
-                        programa,
-                        episodio: episodios[0]
-                    };
-                })
-                .filter(Boolean)
-                .sort((a, b) =>
-                    String(b.episodio.fecha)
-                        .localeCompare(
-                            String(a.episodio.fecha)
-                        )
-                )
-                .slice(0,4);
-
-        for(const item of programas){
+        for(const emision of recientes){
 
             const programa =
-                item.programa;
+                catalogo.programas.find(
+                    p => p.id === emision.programa_id
+                ) || {
+                    id: emision.programa_id,
+                    nombre: emision.nombre,
+                    proveedor:
+                        emision.tipo === 'musical'
+                            ? 'directo'
+                            : 'mixcloud',
+                    episodios: []
+                };
 
-            const episodio =
-                item.episodio;
+            const podcast =
+                estadoPodcastReciente(programa, emision);
 
             const tarjeta =
                 document.createElement('a');
@@ -893,7 +1282,7 @@ fetch('/catalogo-mixcloud.json')
 
             tarjeta.innerHTML = `
                 <img
-                    src="${episodio.imagen}"
+                    src="${podcast.imagen}"
                     alt="${programa.nombre}"
                 >
 
@@ -904,7 +1293,11 @@ fetch('/catalogo-mixcloud.json')
                     </h3>
 
                     <p>
-                        ${fechaVisible(episodio.fecha)}
+                        ${fechaVisible(emision.fecha)}
+                    </p>
+
+                    <p class="estado-podcast">
+                        ${podcast.texto}
                     </p>
 
                 </div>
@@ -912,12 +1305,20 @@ fetch('/catalogo-mixcloud.json')
 
             ultimos.appendChild(tarjeta);
         }
+
+        if(!recientes.length){
+            estadoProgramas.style.display =
+                'block';
+
+            estadoProgramas.textContent =
+                'No hay programas recientes en la parrilla.';
+        }
     })
 
     .catch(error => {
 
         estadoProgramas.textContent =
-            'No se han podido cargar los últimos programas.';
+            'No se han podido cargar los programas recientes.';
 
         console.error(error);
     });

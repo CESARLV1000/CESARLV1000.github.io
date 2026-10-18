@@ -659,6 +659,28 @@ if(!idPrograma){
                 nombre.textContent =
                     programa.nombre;
 
+                if(!programa.episodios.length){
+
+                    estado.style.display =
+                        'block';
+
+                    if(programa.proveedor === 'directo'){
+                        estado.textContent =
+                            'Solo en directo · No disponible como podcast';
+                    }else if(programa.proveedor === 'ivoox'){
+                        estado.textContent =
+                            'Podcast pendiente · Próximamente en iVoox';
+                    }else{
+                        estado.textContent =
+                            'Podcast pendiente · Próximamente en Mixcloud';
+                    }
+
+                    episodios.innerHTML = '';
+                    historico.innerHTML = '';
+
+                    return;
+                }
+
                 estado.style.display =
                     'none';
 
