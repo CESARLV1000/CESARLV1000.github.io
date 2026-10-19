@@ -1,6 +1,36 @@
 {
-  "generado": "2026-10-19T20:00:56",
+  "generado": "2026-10-19T20:15:11",
   "programas": [
+    {
+      "id": "fifi-express",
+      "nombre": "Fifi Express",
+      "proveedor": "mixcloud",
+      "ultima_emision": "2026-10-19",
+      "activo": true,
+      "estado": "activo",
+      "episodios": [
+        {
+          "fecha": "2026-10-19",
+          "titulo": "",
+          "nombre_mixcloud": "Fifi Express - 19/10/26",
+          "key": "/Rock_and_Roll_Rebel_Radio/fifi-express-191026/",
+          "imagen": "/portadas-programas/571508d4d877f6d353f7eec7d06a26cd.webp",
+          "duracion": 992,
+          "reproducciones": 0,
+          "proveedor": "mixcloud"
+        },
+        {
+          "fecha": "2026-10-16",
+          "titulo": "",
+          "nombre_mixcloud": "Fifi Express - 16/10/26",
+          "key": "/Rock_and_Roll_Rebel_Radio/fifi-express-161026/",
+          "imagen": "/portadas-programas/571508d4d877f6d353f7eec7d06a26cd.webp",
+          "duracion": 903,
+          "reproducciones": 9,
+          "proveedor": "mixcloud"
+        }
+      ]
+    },
     {
       "id": "ahora-elvis",
       "nombre": "Ahora, Elvis",
@@ -502,26 +532,6 @@
           "duracion_texto": "58:52",
           "reproducciones": null,
           "proveedor": "ivoox"
-        }
-      ]
-    },
-    {
-      "id": "fifi-express",
-      "nombre": "Fifi Express",
-      "proveedor": "mixcloud",
-      "ultima_emision": "2026-10-16",
-      "activo": true,
-      "estado": "activo",
-      "episodios": [
-        {
-          "fecha": "2026-10-16",
-          "titulo": "",
-          "nombre_mixcloud": "Fifi Express - 16/10/26",
-          "key": "/Rock_and_Roll_Rebel_Radio/fifi-express-161026/",
-          "imagen": "/portadas-programas/571508d4d877f6d353f7eec7d06a26cd.webp",
-          "duracion": 903,
-          "reproducciones": 9,
-          "proveedor": "mixcloud"
         }
       ]
     },
